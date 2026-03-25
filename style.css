@@ -235,7 +235,7 @@ input[type="range"]::-webkit-slider-thumb {
 .legend {
     margin-top: 0;
     background: var(--bg-card);
-    padding: 16px 24px;
+    padding: 10px;
     border: none;
     display: flex;
     flex-direction: row;
@@ -254,9 +254,9 @@ input[type="range"]::-webkit-slider-thumb {
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     margin-bottom: 0;
-    font-size: 12px;
+    font-size: 10px;
     color: var(--text-main);
 }
 .blob {
