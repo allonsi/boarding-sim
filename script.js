@@ -61,8 +61,15 @@ const labelSpeed = document.getElementById('sim-speed-val');
 const btnPlay = document.getElementById('btn-play');
 const btnPause = document.getElementById('btn-pause');
 const btnReset = document.getElementById('btn-reset');
+const mobileToggle = document.getElementById('mobile-toggle');
+const simControls = document.getElementById('sim-controls');
 
 // Events
+if (mobileToggle && simControls) {
+    mobileToggle.addEventListener('click', () => {
+        simControls.classList.toggle('active');
+    });
+}
 inputBaggageProb.addEventListener('input', (e) => {
     baggageProb = parseInt(e.target.value) / 100;
     labelBaggageProb.innerText = `${e.target.value}%`;
@@ -143,8 +150,13 @@ class Passenger {
     updatePos() {
         const crossOffset = [12, 40, 68, 100, 132, 160, 188];
         const longOffset = this.row < 0 ? -24 : (this.row * 28 + 12);
-        this.element.style.left = `${longOffset}px`;
-        this.element.style.top = `${crossOffset[this.col]}px`;
+        if (window.innerWidth <= 800) {
+            this.element.style.top = `${longOffset}px`;
+            this.element.style.left = `${crossOffset[this.col]}px`;
+        } else {
+            this.element.style.left = `${longOffset}px`;
+            this.element.style.top = `${crossOffset[this.col]}px`;
+        }
     }
 
     updateVisuals() {
@@ -457,3 +469,7 @@ function gameLoop() {
 // Initial setup
 initGrid();
 resetSimulation();
+
+window.addEventListener('resize', () => {
+    passengers.forEach(pax => pax.updatePos());
+});

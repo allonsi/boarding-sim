@@ -10,10 +10,16 @@
 <body>
     <div class="app-container">
         <aside class="sidebar">
-            <div class="logo">
-                <p>Boarding Simulator</p>
+            <div class="sidebar-top">
+                <div class="logo">
+                    <p>Boarding Simulator</p>
+                </div>
+                <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle Controls">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
             </div>
-            <div style="flex-grow: 1;"></div>            <div class="controls">
+            <div style="flex-grow: 1;" class="spacer"></div>            
+            <div class="controls" id="sim-controls">
                 <div class="control-group">
                     <label for="strategy-select">Boarding Strategy</label>
                     <select id="strategy-select">
@@ -22,7 +28,7 @@
                         <option value="block">Block (21-30 &rarr; 11-20 &rarr; 1-10)</option>
                         <option value="wilma">Outside-In (Wilma)</option>
                         <option value="no-assigned">No Assigned Seats</option>
-                        <option value="steffen">Steffen Method</option> 
+                        <option value="steffen">Steffen Method</option>
                     </select>
                 </div>
 
