@@ -40,12 +40,12 @@ let pumpkins = [];
 let enemyPumpkins = [];
 let activeItems = [];  // multiple items allowed
 let playerShotCount = 1;
-let bigPumpkinActive = false;
+let bigPumpkinLevel = 0;  // 0 = inactive, 1+ = stacked
 let battleInterval = null;
 let battleKeysDown = {};
 let lastShotTime = 0;
 
-const SHOT_COOLDOWN   = 380;  // ms between shots
+const SHOT_COOLDOWN   = 300;  // ms between shots
 const ITEM_EXPIRE_MS  = 180000; // 3 minutes
 const ENEMY_INIT_SIZE = 180;
 const ENEMY_MIN_SIZE  = 80;
@@ -58,10 +58,12 @@ const boardingSection = document.getElementById('boarding-section');
 const storyOverlay    = document.getElementById('story-overlay');
 const crashOverlay    = document.getElementById('crash-overlay');
 const battleStageEl   = document.getElementById('battle-stage');
+const bossIntroEl     = document.getElementById('boss-intro');
 const titleScreen     = document.getElementById('title-screen');
 
 // --- Button handlers ---
 document.getElementById('btn-start').addEventListener('click', startFromTitle);
+document.getElementById('btn-boss-start').addEventListener('click', startBattleStage);
 document.getElementById('btn-reset').addEventListener('click', resetGame);
 document.getElementById('btn-play-again').addEventListener('click', resetGame);
 document.getElementById('btn-retry').addEventListener('click', resetGame);
@@ -359,7 +361,25 @@ function triggerCrash() {
     requestAnimationFrame(() => requestAnimationFrame(() => {
         crashOverlay.style.opacity = '1';
     }));
-    setTimeout(startBattleStage, 3000);
+    setTimeout(triggerBossIntro, 3000);
+}
+
+// ================================================================
+// Stage 2c — Boss Intro
+// ================================================================
+function triggerBossIntro() {
+    currentStage = 'boss-intro';
+    crashOverlay.style.display  = 'none';
+    crashOverlay.style.opacity  = '0';
+
+    // Re-trigger shake animation by cloning the node trick
+    bossIntroEl.style.display = 'none';
+    bossIntroEl.style.animation = 'none';
+    void bossIntroEl.offsetWidth; // reflow
+    bossIntroEl.style.animation = '';
+    bossIntroEl.style.display   = 'flex';
+
+    playSound('isleBlocked');
 }
 
 // ================================================================
@@ -370,6 +390,7 @@ function startBattleStage() {
     boardingSection.style.display = 'none';
     crashOverlay.style.display    = 'none';
     crashOverlay.style.opacity    = '0';
+    bossIntroEl.style.display     = 'none';
     battleStageEl.style.display   = 'block';
 
     // Reset state
@@ -384,7 +405,7 @@ function startBattleStage() {
     enemyDirY        = 1;
     enemyShootTimer  = 80;
     playerShotCount  = 1;
-    bigPumpkinActive = false;
+    bigPumpkinLevel = 0;
     lastShotTime     = 0;
     pumpkins         = [];
     enemyPumpkins    = [];
@@ -516,7 +537,7 @@ function updateBattle() {
 function shootEnemyPumpkin() {
     const el = document.createElement('div');
     el.className   = 'pumpkin enemy-pumpkin';
-    el.textContent = '🎃';
+    el.textContent = '⚡';
 
     const startX = enemyCX;
     const startY = enemyCY + 10;
@@ -545,8 +566,8 @@ function shootPumpkin() {
     if (now - lastShotTime < SHOT_COOLDOWN) return;
     lastShotTime = now;
 
-    const damage   = bigPumpkinActive ? 2 : 1;
-    const fontSize = bigPumpkinActive ? '46px' : '26px';
+    const damage   = 1 + bigPumpkinLevel;
+    const fontSize = `${26 + bigPumpkinLevel * 2}px`;
 
     for (let i = 0; i < playerShotCount; i++) {
         const spread = playerShotCount > 1 ? (i - (playerShotCount - 1) / 2) * 7 : 0;
@@ -622,7 +643,7 @@ function collectItem(item) {
     if (item.type === 'multishot') {
         playerShotCount = Math.min(playerShotCount + 1, 5);
     } else {
-        bigPumpkinActive = true;
+        bigPumpkinLevel++;
     }
     updatePowerUpDisplay();
     showItemToast(item.type);
@@ -631,7 +652,7 @@ function collectItem(item) {
 function updatePowerUpDisplay() {
     let text = '';
     if (playerShotCount > 1) text += `✨×${playerShotCount} `;
-    if (bigPumpkinActive)    text += '💥';
+    if (bigPumpkinLevel > 0) text += `💥×${bigPumpkinLevel} (+${bigPumpkinLevel}dmg)`;
     document.getElementById('power-ups').textContent = text.trim();
 }
 
@@ -693,13 +714,14 @@ function resetGame() {
     enemyDirY        = 1;
     enemyShootTimer  = 80;
     playerShotCount  = 1;
-    bigPumpkinActive = false;
+    bigPumpkinLevel = 0;
     lastShotTime     = 0;
 
     boardingSection.style.display = 'none';
     storyOverlay.style.display    = 'none';
     crashOverlay.style.display    = 'none';
     crashOverlay.style.opacity    = '0';
+    bossIntroEl.style.display     = 'none';
     battleStageEl.style.display   = 'none';
     document.getElementById('story-scene-container').innerHTML = '';
 
